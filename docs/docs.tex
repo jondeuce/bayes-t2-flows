@@ -1,0 +1,35 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=28mm,marginparwidth=22mm]{geometry}
+
+\input{preamble.tex}
+
+\title{Bayesian $T_2$ Distribution Estimation Using Conditional Normalizing Flows: Technical Documentation}
+\author{Jonathan Doucette, Christian Kames, and Alexander Rauscher}
+\date{}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\input{sections/main.tex}
+\clearpage
+
+\appendix
+\input{sections/appendices.tex}
+\clearpage
+
+\section*{Additional mathematical material}
+\input{sections/theory.tex}
+
+\section*{Acknowledgment}
+
+This work was supported in part by the Canadian Institutes of Health Research under Grant 479213-MPI-CAAA-18330, in part by the Natural Sciences and Engineering Research Council of Canada under Grant 016-05371 and Grant RGPIN-2026-05590, and in part by the Canada Research Chairs under Grant 950-230363.
+This research was supported in part through computational resources and services provided by Advanced Research Computing at the University of British Columbia.
+OpenAI Codex and Anthropic Claude were used to assist with text editing and code revisions.
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}

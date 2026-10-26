@@ -1,0 +1,33 @@
+output = "outputs/preprocessed" # New output directory; source images and masks are read only
+
+[prep]
+seed = 1234 # Random seed
+maxechoes = 56 # Maximum number of echoes; signals are padded with zeros to this length
+    [prep.decaes]
+        nT2 = 41 # Number of T2 bins
+        T1 = 1.0 # Assumed T1
+        Reg = ["gcv", "lcurve", "reginska", "chi2"] # Regularization methods; each image is split into equal random voxel subsets, one per method
+        Chi2Factor = 1.02 # Factor for chi2 regularization
+        chunks = 16 # single-threaded DECAES chunks per regularization method; results are thread-count independent
+        nRefAnglesMin = 16
+        nRefAngles = 64
+
+# Provide disjoint image lists in each partition; the public demo bypasses raw-image preprocessing.
+[train.images.example_train]
+path = "data/train.nii.gz"
+mask = "data/train.mask.nii.gz"
+echotime = 0.008
+numechoes = 48
+
+[val.images.example_val]
+path = "data/val.nii.gz"
+mask = "data/val.mask.nii.gz"
+echotime = 0.008
+numechoes = 48
+
+[test.images.example_test]
+subset = "test_id"
+path = "data/test.nii.gz"
+mask = "data/test.mask.nii.gz"
+echotime = 0.008
+numechoes = 48

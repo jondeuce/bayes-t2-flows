@@ -1,0 +1,133 @@
+% From repository root: pdflatex -output-directory=docs/figures docs/figures/diagrams/arch.tex
+\documentclass[border=0pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc, shadows, backgrounds, fit}
+\usepackage{amsmath}
+\begin{document}
+\def\AL{0.42cm}
+\begin{tikzpicture}[
+    >={Stealth[length=1.8mm, width=1.7mm]},
+    font=\normalsize,
+    box/.style={rectangle, draw, align=center, rounded corners=4pt, drop shadow, inner sep=4pt, minimum height=6mm, text height=1.7ex, text depth=0.35ex},
+    mlp/.style={box, fill=orange!40},
+    emb/.style={box, fill=blue!20},
+    posenc/.style={box, fill=yellow!50},
+    sincircle/.style={circle, draw, fill=yellow!35, inner sep=0pt, minimum size=5.2mm, drop shadow},
+    attn/.style={box, fill=green!30},
+    norm/.style={box, fill=violet!20},
+    lin/.style={box, fill=blue!18},
+    coup/.style={box, fill=teal!25},
+    elem/.style={box, fill=orange!35},
+    ilr/.style={box, fill=violet!22},
+    win/.style={box, fill=red!22},
+    cat/.style={box, fill=pink!28},
+    io/.style={rectangle, fill=white, inner sep=3pt, rounded corners=3pt, drop shadow, minimum height=6mm, text height=1.7ex, text depth=0.35ex},
+    outvar/.style={box, fill=cyan!20},
+    sumnode/.style={circle, draw, fill=cyan!12, inner sep=0pt, minimum size=3.5mm, drop shadow, font=\footnotesize},
+    group/.style={rectangle, rounded corners=6pt, fill=black!20, draw=black!45, line width=0.7pt},
+    panelbg/.style={fill=gray!15, rounded corners=0.5cm, inner sep=0.25cm},
+    replabel/.style={font=\scriptsize, text=black!80},
+    flow/.style={draw, ->, line width=0.7pt},
+    cond/.style={draw, ->, densely dashed, gray!55!black, line width=0.6pt},
+    condline/.style={draw, densely dashed, gray!55!black, line width=0.6pt},
+    tap/.style={draw, ->, gray!55!black, line width=0.6pt},
+    arrowlabel/.style={font=\footnotesize},
+    logJ/.style={font=\scriptsize},
+    panellabel/.style={font=\large},
+    ]
+    \node[io] (b)   at (0, 0)     {$b$};
+    \node[io] (Atb) at (1.4, 0)   {$A^{T}b$};
+    \node[io] (nte) at (2.8, 0)   {$n_{\mathrm{TE}}$};
+    \node[io] (th)  at (4.2, 0)   {$\theta$};
+    \node[io] (A)   at (5.85, 0)  {$A$};
+    \node[mlp, below=\AL of b]   (mb)   {MLP};
+    \node[mlp, below=\AL of Atb] (mAtb) {MLP};
+    \node[emb, below=\AL of nte] (eb)   {Emb};
+    \node[mlp, below=\AL of th]  (mth)  {MLP};
+    \node[mlp, below=\AL of A]   (mA)   {MLP};
+    \draw[flow] (b) -- (mb); \draw[flow] (Atb) -- (mAtb); \draw[flow] (nte) -- (eb); \draw[flow] (th) -- (mth); \draw[flow] (A) -- (mA);
+    \node[cat, below=\AL of mb, xshift=2.1cm, minimum width=5.25cm] (Q) {Concat};
+    \node[cat, below=\AL of mA] (KV) {Concat};
+    \draw[flow] (mb.south) -- (mb.south |- Q.north); \draw[flow] (mAtb.south) -- (mAtb.south |- Q.north); \draw[flow] (eb.south) -- (eb.south |- Q.north); \draw[flow] (mth.south) -- (mth.south |- Q.north); \draw[flow] (mA.south) -- (KV.north);
+    \draw[flow] (Q.east) -- (KV.west);
+    \node[sumnode, below=1.0*\AL of Q] (pe) {$+$};
+    \node[sumnode, below=1.0*\AL of KV] (peKV) {$+$};
+    \node[sincircle] (sinQ)  at ($(pe.west)+(-1.5*\AL,0)$)   {};
+    \node[sincircle] (sinKV) at ($(peKV.west)+(-1.5*\AL,0)$) {};
+    \draw[flow] (sinQ.east)  -- (pe.west);
+    \draw[flow] (sinKV.east) -- (peKV.west);
+    \def\sinradius{2.0}
+    \def\sinamp{0.75*\sinradius}
+    \foreach \c in {sinQ, sinKV}{
+            \begin{scope}[shift={(\c.center)}, x=1mm, y=1mm]
+                \clip (0,0) circle (\sinradius);
+                \draw[blue!65!black, line width=0.6pt] plot[domain=-\sinradius:\sinradius, samples=60, smooth] (\x, {\sinamp*sin((\x/\sinradius)*180)});
+            \end{scope}
+        }
+    \node[attn, below=1.3*\AL of pe] (xf) {Cross-Attn};
+    \draw[flow] (Q.south) -- (pe.north); \draw[flow] (KV.south) -- (peKV.north);
+    \draw[flow] (pe.south) -- (xf.north) node[arrowlabel, pos=0.67, left] {$Q$};
+    \draw[flow] (peKV.south) |- ($(xf.east)+(0,1.3mm)$) node[arrowlabel, pos=0.88, above] {$K$};
+    \draw[flow] (peKV.south) |- ($(xf.east)+(0,-1.3mm)$) node[arrowlabel, pos=0.88, below] {$V$};
+    \node[mlp, below=1.3*\AL of xf] (mz) {MLP};
+    \node[norm, below=\AL of mz] (rms) {RMSNorm};
+    \node[outvar, below=\AL of rms] (z) {$z$};
+    \draw[flow] (xf) -- (mz); \draw[flow] (mz) -- (rms); \draw[flow] (rms) -- (z);
+    \def\X{9.0}
+    \def\Jrail{11.55}
+    \node[io] (u) at (\X, 0) {$u_{\bar{x}} \sim \pi_{u_{\bar{x}}}$};
+    \node[lin, below=\AL of u] (T) {$T$};
+    \node[coup, below=\AL of T] (C) {$C$};
+    \node[lin, below=\AL of C] (Tinv) {$T^{-1}$};
+    \node[elem, below=\AL of Tinv] (E) {$E$};
+    \draw[flow] (u) -- (T); \draw[flow] (T) -- (C); \draw[flow] (C) -- (Tinv); \draw[flow] (Tinv) -- (E);
+    \node[win, below=\AL of E] (Lambda) {$\Lambda$};
+    \node[ilr, below=\AL of Lambda] (ilr) {$\operatorname{ilr}^{-1}(\cdot; \beta_0)$};
+    \node[outvar, below=\AL of ilr] (xbar) {$\bar{x}$};
+    \draw[flow] (E) -- (Lambda) node[arrowlabel, midway, left] {$\xi$};
+    \draw[flow] (Lambda) -- (ilr) node[arrowlabel, midway, left] {$\Lambda \xi$};
+    \draw[flow] (ilr) -- (xbar);
+    \coordinate (Jt) at (\Jrail, 0);
+    \node[io, align=center] (logpi) at (Jt |- u) {$\log \pi_{u_{\bar{x}}}(u_{\bar{x}})$};
+    \node[sumnode] (pT) at (Jt |- T) {$+$};
+    \node[sumnode] (pC) at (Jt |- C) {$+$};
+    \node[sumnode] (pTinv) at (Jt |- Tinv) {$+$};
+    \node[sumnode] (pE) at (Jt |- E) {$+$};
+    \node[sumnode] (pW) at (Jt |- Lambda) {$+$};
+    \node[sumnode] (pilr) at (Jt |- ilr) {$+$};
+    \node[outvar, align=center] (logdet) at (xbar -| Jt) {$\log q_{\bar{x}}(\bar{x} \mid b)$};
+    \draw[tap] (u.east) |- (logpi.west);
+    \draw[tap] (logpi.south) -- (pT.north);
+    \draw[tap] (T.east) -- (pT.west) node[logJ, right, above left] {$-\!\log\lvert J_T \rvert$};
+    \draw[tap] (C.east) -- (pC.west) node[logJ, right, above left] {$-\!\log\lvert J_C \rvert$};
+    \draw[tap] (Tinv.east) -- (pTinv.west) node[logJ, right, above left] {$+\!\log\lvert J_{T} \rvert$};
+    \draw[tap] (E.east) -- (pE.west) node[logJ, right, above left] {$-\!\log\lvert J_E \rvert$};
+    \draw[tap] (Lambda.east) -- (pW.west) node[logJ, right, above left] {$-\!\log\lvert J_\Lambda \rvert$};
+    \draw[tap] (ilr.east) -- (pilr.west) node[logJ, right, above left] {$+\!\log\lvert J_{\operatorname{ilr}} \rvert$};
+    \draw[tap] (pT.south) -- (pC.north); \draw[tap] (pC.south) -- (pTinv.north); \draw[tap] (pTinv.south) -- (pE.north); \draw[tap] (pE.south) -- (pW.north); \draw[tap] (pW.south) -- (pilr.north);
+    \draw[tap] (pilr.south) -- (pilr.south |- logdet.north);
+    \path let \p1=(b.north), \p2=(u.north), \p3=(logpi.north), \n1={max(\y1,max(\y2,\y3))} in coordinate (paneltop) at (0,\n1);
+    \path let \p1=(z.south), \p2=(xbar.south), \p3=(logdet.south), \n1={min(\y1,min(\y2,\y3))} in coordinate (panelbot) at (0,\n1);
+    \coordinate (flowpaneltop) at (paneltop -| u);
+    \coordinate (flowpanelbot) at (panelbot -| u);
+    \begin{scope}[on background layer]
+        \node[panelbg, fit={(b)(Atb)(nte)(th)(A)(mb)(mAtb)(eb)(mth)(mA)(Q)(KV)(pe)(peKV)(sinQ)(sinKV)(xf)(mz)(rms)(z)(paneltop)(panelbot)}] (encbg) {};
+        \node[panelbg, fit={(u)(logpi)(T)(C)(Tinv)(E)(Lambda)(ilr)(xbar)(pT)(pC)(pTinv)(pE)(pW)(pilr)(logdet)(flowpaneltop)(flowpanelbot)}] (flowbg) {};
+        \node[group, fit=(xf), inner sep=3.7mm] (xfg) {};
+        \node[group, fit=(T)(C)(Tinv)(E), inner sep=3.5mm] (blockg) {};
+    \end{scope}
+    \coordinate (zbus) at ($(encbg.east)!0.5!(flowbg.west)$);
+    \coordinate (zbus0) at (zbus |- z.east);
+    \coordinate (zbusC) at (zbus |- C.west);
+    \coordinate (zbusE) at (zbus |- E.west);
+    \draw[condline] (z.east) -- (zbus0) -- (zbusC);
+    \draw[cond] (zbusC) -- (C.west) node[arrowlabel, above left] {$z$};
+    \draw[cond] (zbusE) -- (E.west) node[arrowlabel, above left] {$z$};
+    \draw[cond] ($(Lambda.west)+(-0.55,0)$) -- (Lambda.west) node[arrowlabel, above left] {$\theta$};
+    \node[replabel, anchor=north east] at ($(xfg.north east)+(-0.75pt,-0.75pt)$) {$\times L$};
+    \node[replabel, anchor=north east] at ($(blockg.north east)+(-0.75pt,-0.75pt)$) {$\times B$};
+    \node[panellabel, anchor=south] (enclabel) at (encbg.north) {(a) Encoder $\mathcal{E}$};
+    \node[panellabel, anchor=south] (flowlabel) at (flowbg.north) {(b) Flow backbone $\varphi_{\bar{x}}$};
+    \path[use as bounding box, overlay] ($(enclabel.north -| encbg.west)+(-1mm,1mm)$) rectangle ($(flowbg.south east)+(1mm,-1mm)$);
+\end{tikzpicture}
+\end{document}

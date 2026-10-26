@@ -1,0 +1,28 @@
+[device]
+gpu = false
+seed = 42
+
+[train]
+steps = 50
+batchsize = 128
+eval_every = 10
+
+[eval]
+batchsize = 256
+
+[train.initialization]
+batchnorm_samples = 256
+tokenizer_samples = 256
+flow_samples = 1024
+
+[arch]
+nlatent = 8
+
+[arch.flows]
+hdim = 32
+nflows = 2
+
+[arch.encoder]
+hdim = 32
+tokensize = 16
+headsize = 2

@@ -1,0 +1,141 @@
+\usepackage{siunitx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{algorithm2e}
+\usepackage{setspace}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{textcomp}
+\usepackage{xurl}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\usepackage[acronym,nomain,shortcuts=other]{glossaries-extra}
+\usepackage{etoolbox}
+\usepackage[noabbrev]{cleveref}
+
+\RestyleAlgo{ruled}
+\SetKwComment{Comment}{\# }{}
+\LinesNumbered
+\DontPrintSemicolon
+
+\makeatletter
+\algocf@newcommand{KwInNewline}[1]{
+  \sbox\algocf@inputbox{\hbox{\KwSty{Input}\algocf@typo: }}
+  \ifthenelse{\boolean{algocf@inoutnumbered}}{\relax}{\everypar={\relax}}
+  {\let\\\algocf@newinput\hspace{\wd\algocf@inputbox}\hangindent=\wd\algocf@inputbox\hangafter=\wd\algocf@inputbox#1\par}
+  \algocf@linesnumbered
+}
+\makeatother
+
+\allowdisplaybreaks[4]
+
+\DeclareMathOperator\argmin{arg\,min}
+\DeclareMathOperator\erfc{erfc}
+\DeclareMathOperator\erfcx{erfcx}
+\DeclareMathOperator\KL{KL}
+\DeclareMathOperator\Rice{Rice}
+\DeclareMathOperator\QRice{QRice}
+
+\DeclarePairedDelimiter{\parens}{\lparen}{\rparen}
+\DeclarePairedDelimiter{\verts}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\bracks}{\lbrack}{\rbrack}
+\DeclarePairedDelimiter{\braces}{\lbrace}{\rbrace}
+
+\newcommand{\vv}[1]{\ensuremath{#1}}
+\newcommand{\vvb}[1]{\ensuremath{#1}}
+\newcommand{\grad}{\operatorname{grad}}
+\newcommand{\Image}{\operatorname{Image}}
+\newcommand{\Id}{\mathrm{I}}
+\newcommand{\Zero}{\mathrm{0}}
+\newcommand{\One}{\mathrm{1}}
+\newcommand{\Diag}[1]{\operatorname{diag}\parens*{#1}}
+\newcommand{\Adj}[1]{\operatorname{adj}\parens*{#1}}
+\newcommand{\Dir}[1]{\operatorname{Dir}\parens*{#1}}
+\newcommand{\Det}[1]{\operatorname{det}\parens*{#1}}
+\newcommand{\AbsDet}[1]{\verts*{#1}}
+\newcommand{\Tr}[1]{\operatorname{tr}\parens*{#1}}
+\newcommand{\Ex}[1]{\operatorname{\mathbb{E}}\bracks*{#1}}
+\newcommand{\Var}[1]{\operatorname{Var}\bracks*{#1}}
+\newcommand{\Proj}[2]{\operatorname{proj}_{#1}\parens*{#2}}
+\newcommand{\Retr}[2]{\operatorname{retr}_{#1}\parens*{#2}}
+\newcommand{\softmax}{\operatorname{softmax}}
+\newcommand{\Softmax}[1]{\softmax\parens*{#1}}
+\newcommand{\ilr}{\operatorname{ilr}}
+\newcommand{\invilr}{\ensuremath{\operatorname{ilr}^{-1}}}
+\newcommand{\ILR}[1]{\ilr\parens*{#1}}
+\newcommand{\InvILR}[1]{\ilr^{-1}\parens*{#1}}
+\newcommand{\Laplace}[1]{\mathcal{L}\braces*{#1}}
+\newcommand{\InvLaplace}[1]{\mathcal{L}^{-1}\braces*{#1}}
+\newcommand{\ProbSimplex}[1]{\Delta_{#1}}
+\newcommand{\Polytope}[1]{\mathcal{S}_{#1}}
+\newcommand{\Ortho}[1]{\mathcal{O}_{#1}}
+\newcommand{\Beta}{\mathrm{B}}
+
+\newcommand{\latents}{\vv{z}}
+
+\newcommand{\genatr}{\ensuremath{\mathcal{G}}}
+\newcommand{\enc}{\ensuremath{\mathcal{E}}}
+\newcommand{\signal}{\vv{b}}
+\newcommand{\epgbases}{\vv{A}}
+\newcommand{\distbn}{\vv{x}}
+\newcommand{\Closure}[1]{\mathcal{C}\bracks*{#1}}
+\newcommand{\StopGradient}{\operatorname{sg}}
+\newcommand*{\TE}{\ensuremath{\mathrm{TE}}}
+
+\setabbreviationstyle[acronym]{short-nolong}
+\newacronym{BET}{BET}{Brain Extraction Tool}
+\newacronym{CI}{CI}{credible interval}
+\newacronym{CPMG}{CPMG}{Carr--Purcell--Meiboom--Gill}
+\newacronym{CPU}{CPU}{central processing unit}
+\newacronym{CSF}{CSF}{cerebrospinal fluid}
+\newacronym{CWF}{\ensuremath{\mathrm{CWF}}}{cerebrospinal water fraction}
+\newacronym{DCT}{DCT}{discrete cosine transform}
+\newacronym{DECAES}{DECAES}{DEcomposition and Component Analysis of Exponential Signals}
+\newacronym{ELBO}{ELBO}{evidence lower bound}
+\newacronym{EPG}{EPG}{extended phase graph}
+\newacronym{GCV}{GCV}{generalized cross-validation}
+\newacronym{GMRF}{GMRF}{Gaussian Markov random field}
+\newacronym{GPU}{GPU}{graphics processing unit}
+\newacronym{HMC}{HMC}{Hamiltonian Monte Carlo}
+\newacronym{IEWF}{\ensuremath{\mathrm{IEWF}}}{intra-/extracellular water fraction}
+\newacronym{IFT}{IFT}{implicit function theorem}
+\newacronym{ILR}{ILR}{isometric log-ratio}
+\newacronym{ILT}{ILT}{inverse Laplace transform}
+\newacronym{IW}{IW}{importance weighting}
+\newacronym{KL}{KL}{Kullback--Leibler}
+\newacronym{MAE}{\ensuremath{\mathrm{MAE}}}{mean absolute error}
+\newacronym{MALA}{MALA}{Metropolis-adjusted Langevin algorithm}
+\newacronym{MAP}{MAP}{maximum a posteriori}
+\newacronym{MCMC}{MCMC}{Markov chain Monte Carlo}
+\newacronym{MH}{MH}{Metropolis--Hastings}
+\newacronym{MLE}{MLE}{maximum likelihood estimation}
+\newacronym{MLP}{MLP}{multilayer perceptron}
+\newacronym{MPSV}{MPSV}{magnetization phase state vector}
+\newacronym{MR}{MR}{magnetic resonance}
+\newacronym{MRI}{MRI}{magnetic resonance imaging}
+\newacronym{MSE}{MSE}{multi-spin echo}
+\newacronym{MWF}{\ensuremath{\mathrm{MWF}}}{myelin water fraction}
+\newacronym{MWI}{MWI}{myelin water imaging}
+\newacronym{NNLS}{NNLS}{nonnegative least squares}
+\newacronym{NUTS}{NUTS}{no-U-turn sampler}
+\newacronym{PDF}{PDF}{probability density function}
+\newacronym{PSIS}{PSIS}{Pareto-smoothed importance sampling}
+\newacronym{RGD}{RGD}{Riemannian gradient descent}
+\newacronym{RMS}{RMS}{root mean square}
+\newacronym{RWM}{RWM}{random-walk Metropolis}
+\newacronym{SNR}{\ensuremath{\mathrm{SNR}}}{signal-to-noise ratio}
+\newacronym{SVD}{SVD}{singular value decomposition}
+\newacronym{ULA}{ULA}{unadjusted Langevin algorithm}
+\newacronym{WM}{WM}{white matter}
+
+\sisetup{product-units = single}
+\sisetup{inter-unit-product = \ensuremath{\cdot}}
+\sisetup{separate-uncertainty = true}
+\sisetup{multi-part-units = single}
+\sisetup{range-phrase = --}
+\sisetup{range-units = single}
+\sisetup{list-units = single}

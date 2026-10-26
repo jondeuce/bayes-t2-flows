@@ -1,0 +1,76 @@
+[device]
+gpu = true
+seed = 42
+
+[data]
+path = "outputs/synthetic/preprocessed_dataset.arrow"
+config = ""
+nT2 = 41
+nTE = 56
+
+[log]
+dir = "outputs/demo-run"
+
+[checkpoint]
+resume_from_step = 0
+dir = ""
+
+[train]
+steps = 160000 # optimizer updates for the published model
+batchsize = 16384
+eval_every = 2000 # validation and checkpoint interval in steps
+
+[train.initialization]
+batchnorm_samples = 262144
+tokenizer_samples = 65536
+flow_samples = 32768
+
+[train.reg]
+lambda_encwass2 = 1.0
+
+[train.augment]
+nTEmin = 16
+nTEfrac = 0.8
+requantize = 0.5
+flipdelta = 1.0
+t2mindelta = {min = -0.001, max = 0.003}
+t2maxbounds = {min = 1.0, max = 2.0}
+t1bounds = {min = 1.0, max = 2.0}
+
+[eval]
+batchsize = 49152 # validation batch of the reported run (3 × 16384)
+
+[opt.lr]
+start = 0.0
+middle = 0.01
+warmup = 500 # steps
+
+[opt.wdecay]
+start = 0.001
+
+[opt.psgd]
+beta1 = 0.99
+eta_Q = 0.1
+rmsclip = 3.0
+
+[arch]
+nlatent = 128
+
+[arch.prior]
+noiselevel = {mean = 30.0, std = 10.0}
+logscale = {std = 0.05}
+
+[arch.prior.xdist]
+noisefloor = 0.1
+
+[arch.flows]
+nflows = 8
+hdim = 256
+initialization = {perturbation = 0.05}
+
+[arch.encoder]
+ntransformers = 2
+tokensize = 0
+nheads = 8
+headsize = 0
+hdim = 256

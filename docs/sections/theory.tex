@@ -1,0 +1,665 @@
+\section{The Symmetric Dirichlet Distribution on \texorpdfstring{$\ProbSimplex{n-1}$}{DeltaNMinusOne}}\label{sec:supp:dirichlet_distbn}
+
+Here we recall some basic properties of the symmetric Dirichlet distribution $\Dir{\alpha}$, defined over $\ProbSimplex{n-1}$ by the probability density function
+\begin{align}\label{eqn:supp:dirichlet_pdf}
+    p(\vv{x} \mid \alpha) = \frac{1}{\Beta_{n}(\alpha)} \prod_{i=1}^{n} \vv{x}_i^{\alpha - 1}
+\end{align}
+where $\alpha > 0$, $\vv{x} \in \ProbSimplex{n-1}$, and $\Beta_{n}(\alpha)$ is the multivariate \textit{beta function} $\Beta$ with all arguments equal to $\alpha$:
+\begin{align*}
+    \Beta(\alpha_1, \ldots, \alpha_n) & = \frac{\prod_{i=1}^{n} \Gamma(\alpha_i)}{\Gamma\left(\sum_{i=1}^{n} \alpha_i\right)}  \\
+    \Rightarrow \Beta_{n}(\alpha)     & \coloneqq \Beta(\alpha, \ldots, \alpha) = \frac{\Gamma(\alpha)^{n}}{\Gamma(n \alpha)}.
+\end{align*}
+In using $\Dir{\alpha}$ as a prior on $\vv{x} \in \ProbSimplex{n-1}$, the concentration parameter $\alpha > 0$ has a regularizing effect: large $\alpha$ pushes inferred $\vv{x}$ toward the simplex centre -- the uniform distribution $\frac{1}{n} \One$ -- and conversely, small $\alpha$ pushes $\vv{x}$ toward the simplex corners, approaching one-hot distributions as $\alpha \to 0^+$.
+
+\section{The Symmetric Gaussian Restricted to \texorpdfstring{$\ProbSimplex{n-1}$}{DeltaNMinusOne}}\label{sec:supp:gauss_distbn}
+
+Consider the symmetric Gaussian distribution defined over $\ProbSimplex{n-1}$ by the probability density function
+\begin{align}\label{eqn:supp:gauss_pdf_simplex}
+    p(\vv{x} \mid \sigma) = \frac{1}{\mathcal{Z}_n} e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 }
+\end{align}
+where $\vv{x} \in \ProbSimplex{n-1}$, $\sigma \in \mathbb{R}^+$, and the normalization constant is
+\begin{align}\label{eqn:supp:gauss_pdf_norm}
+    \mathcal{Z}_n = \int_{\ProbSimplex{n-1}} e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \, d\vv{x}.
+\end{align}
+Similar to the usual Gaussian distribution, using this prior on $\vv{x} \in \ProbSimplex{n-1}$ acts as a regularizer: small $\sigma$ pushes inferred $\vv{x}$ toward the simplex centroid $\frac{1}{n} \One$, whereas $p(\vv{x} \mid \sigma) \to \mathcal{U}(\ProbSimplex{n-1})$ as $\sigma \to \infty$.
+
+While $\mathcal{Z}_n$ does not admit a closed form, in \cref{sec:supp:gauss_distbn_norm} we derive analytic asymptotic expressions for $\log\mathcal{Z}_n$ in the small and large $\sigma$ limits, and numerically compute minimax rational approximants for intermediate $\sigma$.
+In particular, we have the approximations:
+\begin{align}
+    \sigma \ll \sigma_0 & :
+    \begin{cases}
+        \log\mathcal{Z}_n                                          \approx -\frac{1}{2 n \sigma^2} + \frac{n-1}{2} \log 2\pi\sigma^2 - \log\sqrt{n} \\
+        \frac{d \log\mathcal{Z}_n}{d \log\sigma} \approx \frac{1}{n \sigma^2} + n - 1.
+    \end{cases}
+    \\
+    \sigma \gg \sigma_0 & :
+    \begin{cases}
+        \log\mathcal{Z}_n                                          \approx -\log\Gamma(n) - \frac{a_1}{\sigma^2} + \frac{a_2}{\sigma^4} \\
+        \frac{d \log\mathcal{Z}_n}{d \log\sigma} \approx \frac{2 a_1}{\sigma^2} - \frac{4 a_2}{\sigma^4}
+    \end{cases}
+\end{align}
+where $\sigma_0 = \sqrt{\frac{1}{n (n-1)}}$ is the distance from the simplex centroid to the nearest point on the simplex boundary, $a_1 = \frac{1}{n+1}$, and $a_2 = \frac{n-1}{2 (n+1)^2 (n+2) (n+3)}$.
+
+\subsection{Normalization Constant of the Symmetric Gaussian on \texorpdfstring{$\ProbSimplex{n-1}$}{DeltaNMinusOne}}\label{sec:supp:gauss_distbn_norm}
+
+Here, we derive approximations to the normalization constant $\mathcal{Z}_n$ of the symmetric Gaussian distribution $p(\vv{x} \mid \sigma)$ introduced in \cref{sec:supp:gauss_distbn}.
+We first write $\mathcal{Z}_n$ as an expectation over the probability simplex:
+\begin{align}
+    \begin{split}
+        \mathcal{Z}_n & = \int_{\ProbSimplex{n-1}} e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \, d\vv{x}                                         \\
+        & = |\ProbSimplex{n-1}| \cdot \mathbb{E}_{\vv{x} \sim \Dir{1}} \left[ e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \right]
+    \end{split}
+\end{align}
+where $\vv{x} \in \ProbSimplex{n-1}$, $\sigma \in \mathbb{R}^+$, and $|\ProbSimplex{n-1}| = 1 / \Gamma(n)$ is the simplex volume.
+The latter interpretation of $\mathcal{Z}_n$ as an expectation is useful, as it allows us to use well-known properties of the Dirichlet distribution in order to integrate over $\ProbSimplex{n-1}$.
+The properties we will use are the mean and variance of $\vv{x} \sim \Dir{\alpha}$
+\begin{align}
+    \Ex{\vv{x}_i} = \frac{1}{n}, \quad \Var{\vv{x}_i} & = \frac{1 - 1/n}{n (1 + n\alpha)}
+\end{align}
+and the following expressions involving higher moments of $\vv{x} \sim \Dir{1}$:
+\begin{align}\label{eqn:supp:dirichlet_moments}
+    \begin{split}
+        \Ex{\vv{x}_i^2}                           & = \frac{2}{n (n+1)}                               \\
+        \sum_{i=1}^n \Ex{\vv{x}_i^2}              & = \frac{2}{n+1}                                   \\
+        \Ex{\vv{x}_i^4}                           & = \frac{24}{n (n+1) (n+2) (n+3)}                  \\
+        \Ex{\vv{x}_i^2 \vv{x}_j^2}                & = \frac{4}{n (n+1) (n+2) (n+3)} \quad (i \neq j). \\
+        \sum_{i,j=1}^n \Ex{\vv{x}_i^2 \vv{x}_j^2} & = \frac{4 (n+5)}{(n+1) (n+2) (n+3)}
+    \end{split}
+\end{align}
+
+We will derive expressions for $\log\mathcal{Z}_n$ in the limit of large and small $\sigma$, and find minimax rational approximants for intermediate $\sigma$.
+A convenient dividing value between large and small $\sigma$ is the distance between the simplex centroid and the nearest point on the simplex boundary:
+\begin{align}
+    \sigma_0 =
+    \left\lVert \frac{1}{n}\One_{n} - \frac{1}{n-1} \begin{pmatrix} \One_{n-1} \\ 0 \end{pmatrix} \right\rVert
+    = \sqrt{\frac{1}{n (n-1)}}.
+\end{align}
+
+\subsubsection{Wide Width Limit ($\sigma \gg \sigma_0$)}
+
+For large $\sigma$, since $\lVert \vv{x} \rVert \le 1$ is bounded, we can Taylor expand the integrand:
+\begin{align*}
+     & \frac{\mathcal{Z}_n}{|\ProbSimplex{n-1}|} = \mathbb{E}_{\vv{x} \sim \Dir{1}} \left[ e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \right]                                                              \\
+     & = \Ex{ 1 - \frac{\lVert \vv{x} \rVert^2}{2 \sigma^2} + \frac{1}{2} \left( \frac{\lVert \vv{x} \rVert^2}{2 \sigma^2} \right)^2 + \mathcal{O}\left( \frac{\lVert \vv{x} \rVert^6}{\sigma^6} \right) } \\
+     & = 1 - \frac{1}{2 \sigma^2} \sum_{i=1}^n \Ex{ \vv{x}_i^2 } + \frac{1}{8 \sigma^4} \sum_{i,j=1}^n \Ex{ \vv{x}_i^2 \vv{x}_j^2 } + \mathcal{O}\left( \frac{1}{\sigma^6} \right)                         \\
+     & = 1 - \frac{a_1}{\sigma^2} + \frac{a_2^\prime}{\sigma^4} + \mathcal{O}\left( \frac{1}{\sigma^6} \right)
+\end{align*}
+where the constants
+\begin{align*}
+    a_1 = \frac{1}{n+1} \quad \text{and} \quad a_2^\prime = \frac{n+5}{2 (n+1) (n+2) (n+3)}
+\end{align*}
+are computed using the moments of $\Dir{1}$ from~\eqref{eqn:supp:dirichlet_moments}.
+Note that as expected, $\mathcal{Z}_n \to |\ProbSimplex{n-1}|$ and $p(\vv{x} \mid \sigma) \to \mathcal{U}(\ProbSimplex{n-1})$ as $\sigma \to \infty$.
+Now, taking the logarithm we have that
+\begin{align*}
+    \log \frac{\mathcal{Z}_n}{|\ProbSimplex{n-1}|}
+     & = \log \left(1 - \frac{a_1}{\sigma^2} + \frac{a_2^\prime}{\sigma^4} + \mathcal{O}\left( \frac{1}{\sigma^6} \right)\right) \\
+     & = - \frac{a_1}{\sigma^2} + \frac{a_2}{\sigma^4} + \mathcal{O}\left( \frac{1}{\sigma^6} \right)
+\end{align*}
+where Taylor expansion of the logarithm gives
+\begin{align*}
+    a_2 = a_2^\prime - \frac{1}{2} a_1^2 = \frac{n-1}{2 (n+1)^2 (n+2) (n+3)}.
+\end{align*}
+Using the same approach, the derivative is given by
+\begin{align*}
+     & \frac{1}{|\ProbSimplex{n-1}|} \frac{d \mathcal{Z}_n}{d \log\sigma}
+    = \mathbb{E}_{\vv{x} \sim \Dir{1}} \left[ \frac{\partial}{\partial \log\sigma} e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \right]                                        \\
+     & = \mathbb{E} \left[ \frac{\lVert \vv{x} \rVert^2}{\sigma^2} e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \right]                                                        \\
+     & = \Ex{ \frac{\lVert \vv{x} \rVert^2}{\sigma^2} - \frac{\lVert \vv{x} \rVert^4}{2 \sigma^4} + \mathcal{O}\left( \frac{\lVert \vv{x} \rVert^6}{\sigma^6} \right) }      \\
+     & = \frac{1}{\sigma^2} \sum_{i=1}^n \Ex{ \vv{x}_i^2 } - \frac{1}{2 \sigma^4} \sum_{i,j=1}^n \Ex{ \vv{x}_i^2 \vv{x}_j^2 } + \mathcal{O}\left( \frac{1}{\sigma^6} \right) \\
+     & = \frac{2 a_1}{\sigma^2} - \frac{4 a_2^\prime}{\sigma^4} + \mathcal{O}\left( \frac{1}{\sigma^6} \right)
+\end{align*}
+where $\frac{\partial}{\partial \log\sigma} = \sigma \cdot \frac{\partial}{\partial \sigma}$, and $a_1, a_2^\prime$ are as previously defined.
+The derivative of $\log\mathcal{Z}_n$ is then
+\begin{align*}
+    \frac{d \log\mathcal{Z}_n}{d \log\sigma} & = \frac{1}{\mathcal{Z}_n} \frac{d \mathcal{Z}_n}{d \log\sigma} = \frac{\frac{2 a_1}{\sigma^2} - \frac{4 a_2^\prime}{\sigma^4} + \mathcal{O}\left( \frac{1}{\sigma^6} \right)}{1 - \frac{a_1}{\sigma^2} + \frac{a_2^\prime}{\sigma^4} + \mathcal{O}\left( \frac{1}{\sigma^6} \right)} \\
+                                             & = \frac{2 a_1}{\sigma^2} - \frac{4 a_2}{\sigma^4} + \mathcal{O}\left( \frac{1}{\sigma^6} \right)
+\end{align*}
+where the final expression follows from Taylor expansion of the denominator, and again $a_2 = a_2^\prime - \frac{1}{2} a_1^2$.
+Dropping higher-order terms, we arrive at the approximations for $\sigma \gg \sigma_0$:
+\begin{align}
+    \log\mathcal{Z}_n                        & \approx -\log\Gamma(n) - \frac{a_1}{\sigma^2} + \frac{a_2}{\sigma^4} \label{eqn:supp:gauss_norm_large_sigma} \\
+    \frac{d \log\mathcal{Z}_n}{d \log\sigma} & \approx \frac{2 a_1}{\sigma^2} - \frac{4 a_2}{\sigma^4}. \label{eqn:supp:gauss_norm_deriv_large_sigma}
+\end{align}
+
+\subsubsection{Narrow Width Limit ($\sigma \ll \sigma_0$)}
+
+For small $\sigma$, the Gaussian integrand becomes sharply peaked about the simplex centroid $\vvb{\mu} = \frac{1}{n} \One$, and therefore little error is incurred by extending the integral domain from $\ProbSimplex{n-1}$ to $\mathcal{P}_{n-1}$.
+To integrate over $\mathcal{P}_{n-1}$, we split $\lVert \vv{x} \rVert^2$ for $\vv{x} \in \mathcal{P}_{n-1}$ into orthogonal components:
+\begin{align*}
+    \lVert \vv{x} \rVert^2
+     & = \lVert \vvb{\mu} \rVert^2 + \lVert \vv{x} - \vvb{\mu} \rVert^2                                                     \\
+     & = \frac{1}{n} + \lVert \tilde{\vv{x}} - \tilde{\vvb{\mu}} \rVert^2 + ((1 - \One^T \tilde{\vv{x}}) - \frac{1}{n})^2   \\
+     & = \frac{1}{n} + \lVert \tilde{\vv{x}} - \tilde{\vvb{\mu}} \rVert^2 + (\One^T (\tilde{\vv{x}} - \tilde{\vvb{\mu}}))^2 \\
+     & = \frac{1}{n} + (\tilde{\vv{x}} - \tilde{\vvb{\mu}})^T (\Id + \One \One^T) (\tilde{\vv{x}} - \tilde{\vvb{\mu}})
+\end{align*}
+where $\tilde{\vv{x}} = (\vv{x}_{1}, \ldots, \vv{x}_{n-1}) \in \mathbb{R}^{n-1}$, $\vv{x}_n = 1 - \One^T \tilde{\vv{x}}$, and $\tilde{\vvb{\mu}} = \frac{1}{n} \One \in \mathbb{R}^{n-1}$.
+Next, we let $\vv{\Sigma}^{-1} = \frac{1}{\sigma^2} \left( \Id + \One \One^T \right) \in \mathbb{R}^{(n-1) \times (n-1)}$ and change variables to $\tilde{\vv{y}} = \vv{\Sigma}^{-1/2} (\tilde{\vv{x}} - \tilde{\vvb{\mu}})$, $d \tilde{\vv{y}} = \AbsDet{\vv{\Sigma}}^{-1/2} d \tilde{\vv{x}}$.
+From the matrix determinant lemma, $\AbsDet{\vv{\Sigma}}^{1/2} = \sigma^{n-1} / \sqrt{n}$.
+Then, letting $f : \mathbb{R}^+ \to \mathbb{R}$ be of the form $f(t) = g(t) e^{-t/2}$ with $g$ sub-exponential, we have:
+\begin{align*}
+     & \int_{\ProbSimplex{n-1}} f\left( \frac{\lVert \vv{x} \rVert^2}{\sigma^2} \right) \, d\vv{x}                                                                                                                                                       \\
+     & = \int_{\Polytope{n-1}} f\left( \tfrac{1}{n \sigma^2} + (\tilde{\vv{x}} - \tilde{\vvb{\mu}})^T \vv{\Sigma}^{-1} (\tilde{\vv{x}} - \tilde{\vvb{\mu}}) \right) \, d\tilde{\vv{x}}                                                                   \\
+     & \approx \AbsDet{\vv{\Sigma}}^{1/2}  \int_{\mathbb{R}^{n-1}} f\left( \tfrac{1}{n \sigma^2} + \lVert \tilde{\vv{y}} \rVert^2 \right) \, d\tilde{\vv{y}}                                                                                             \\
+     & = \sqrt{\frac{\AbsDet{2\pi \vv{\Sigma}}}{e^{1 / n \sigma^2}}} \int_{\mathbb{R}^{n-1}} g\left( \tfrac{1}{n \sigma^2} + \lVert \tilde{\vv{y}} \rVert^2 \right) \frac{e^{-\lVert \tilde{\vv{y}} \rVert^2 / 2}}{\sqrt{2\pi}^{n-1}} \, d\tilde{\vv{y}} \\
+     & = \sqrt{\frac{\AbsDet{2\pi \vv{\Sigma}}}{e^{1 / n \sigma^2}}} \mathbb{E}_{\tilde{\vv{y}} \sim \mathcal{N}(\Zero, \Id)} \left[ g \left( \tfrac{1}{n \sigma^2} + \lVert \tilde{\vv{y}} \rVert^2 \right) \right]
+\end{align*}
+where the integral over $\Polytope{n-1}$ is approximated as an integral over $\mathbb{R}^{n-1}$ (i.e.\ $\ProbSimplex{n-1}$ is extended to $\mathcal{P}_{n-1}$).
+For $\mathcal{Z}_n$, taking $g(t) \equiv 1$ above gives
+\begin{align*}
+    \mathcal{Z}_n \approx \hat{\mathcal{Z}}_n
+    \coloneqq \sqrt{\frac{\AbsDet{2\pi \vv{\Sigma}}}{e^{1 / n \sigma^2}}}
+    = \frac{\sigma^{n-1}}{\sqrt{n}} \frac{\sqrt{2\pi}^{n-1}}{e^{1 / 2 n \sigma^2}}.
+\end{align*}
+The same method applies to $\frac{d \log\mathcal{Z}_n}{d \log\sigma}$ with $g(t) = t$:
+\begin{align*}
+    \frac{d \log\mathcal{Z}_n}{d \log\sigma} & = \frac{1}{\mathcal{Z}_n} \int_{\ProbSimplex{n-1}} \frac{\partial}{\partial \log\sigma} e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \, d\vv{x}                                    \\
+                                             & = \frac{1}{\mathcal{Z}_n} \int_{\ProbSimplex{n-1}} \frac{\lVert \vv{x} \rVert^2}{\sigma^2} e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \, d\vv{x}                                 \\
+                                             & \approx \frac{\hat{\mathcal{Z}}_n}{\mathcal{Z}_n} \mathbb{E}_{\tilde{\vv{y}} \sim \mathcal{N}(\Zero, \Id)} \left[ \tfrac{1}{n \sigma^2} + \lVert \tilde{\vv{y}} \rVert^2 \right] \\
+                                             & \approx \frac{1}{n \sigma^2} + n - 1
+\end{align*}
+where $\mathcal{Z}_n \approx \hat{\mathcal{Z}}_n$, and $\Ex{\lVert \tilde{\vv{y}} \rVert^2}$ is the trace of the covariance matrix $\Tr{\Id} = n-1$.
+The final approximants for $\log\mathcal{Z}_n$ when $\sigma \ll \sigma_0$ are thus
+\begin{align}
+    \log\mathcal{Z}_n                        & \approx -\frac{1}{2 n \sigma^2} + \frac{n-1}{2} \log 2\pi\sigma^2 - \log\sqrt{n}  \label{eqn:supp:gauss_norm_small_sigma} \\
+    \frac{d \log\mathcal{Z}_n}{d \log\sigma} & \approx \frac{1}{n \sigma^2} + n - 1. \label{eqn:supp:gauss_norm_deriv_small_sigma}
+\end{align}
+
+To justify these approximations, we must bound the excess integral over $\mathcal{P}_{n-1} \setminus \ProbSimplex{n-1}$ (or $\mathbb{R}^{n-1} \setminus \Polytope{n-1}$).
+By construction, $\lVert \tilde{\vv{y}} \rVert^2 = \lVert \vv{x} - \vvb{\mu} \rVert^2 / \sigma^2$ for $\vv{x} \in \mathcal{P}_{n-1}$, and therefore $\mathbb{R}^{n-1} \setminus \Polytope{n-1}$ lies outside the ball $\lVert \tilde{\vv{y}} \rVert^2 \le \sigma_0^2 / \sigma^2$.
+As the integrand is positive, the remainder is bounded by:
+\begin{align*}
+    | \mathcal{Z}_n - \hat{\mathcal{Z}}_n | & = \int_{\mathcal{P}_{n-1} \setminus \ProbSimplex{n-1}} e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \, d\vv{x}                                                               \\
+                                            & \le \hat{\mathcal{Z}}_n \int_{\lVert \tilde{\vv{y}} \rVert^2 > \sigma_0^2 / \sigma^2} \frac{e^{-\lVert \tilde{\vv{y}} \rVert^2 / 2}}{\sqrt{2\pi}^{n-1}} \, d\tilde{\vv{y}} \\
+                                            & = \hat{\mathcal{Z}}_n \int_{\sigma_0^2 / \sigma^2}^{\infty} \frac{t^{\frac{n-1}{2} - 1} e^{-t/2}}{2^{\frac{n-1}{2}} \Gamma(\tfrac{n-1}{2})} \, dt                          \\
+                                            & = \hat{\mathcal{Z}}_n P_{\chi^2_{n-1}}( t \ge \tfrac{\sigma_0^2}{\sigma^2} )                                                                                               \\
+                                            & \le \hat{\mathcal{Z}}_n e^{-c_1 \sigma_0^2 / \sigma^2}
+\end{align*}
+where $t=\lVert \tilde{\vv{y}} \rVert^2$, $P_{\chi^2_{n-1}}$ is the upper tail of the $\chi^2$ distribution with $n-1$ degrees of freedom, and $c_1$ is a positive constant~\citep{laurent_adaptive_2000, zhang_non-asymptotic_2020}.
+The relative error of $\hat{\mathcal{Z}}_n$ (i.e.\ the absolute error of \eqref{eqn:supp:gauss_norm_small_sigma}) is thus $\mathcal{O}(e^{-c_1 \sigma_0^2 / \sigma^2})$ as $\sigma/\sigma_0 \to 0^+$.
+$\blacksquare$
+
+Similarly for the derivative, we have
+\begin{align*}
+     & \left| \frac{d \mathcal{Z}_n}{d \log\sigma} - \frac{d \hat{\mathcal{Z}}_n}{d \log\sigma} \right| = \int_{\mathcal{P}_{n-1} \setminus \ProbSimplex{n-1}} \frac{\lVert \vv{x} \rVert^2}{\sigma^2} e^{ -\lVert \vv{x} \rVert^2 / 2 \sigma^2 } \, d\vv{x} \\
+     & \le \hat{\mathcal{Z}}_n \int_{\lVert \tilde{\vv{y}} \rVert^2 > \sigma_0^2 / \sigma^2} \left(\tfrac{1}{n \sigma^2} + \lVert \tilde{\vv{y}} \rVert^2 \right) \frac{e^{-\lVert \tilde{\vv{y}} \rVert^2 / 2}}{\sqrt{2\pi}^{n-1}} \, d\tilde{\vv{y}}       \\
+     & = \hat{\mathcal{Z}}_n \left( \frac{P_{\chi^2_{n-1}}( t \ge \tfrac{\sigma_0^2}{\sigma^2} )}{n \sigma^2} + \int_{\sigma_0^2 / \sigma^2}^{\infty} \frac{t^{\frac{n-1}{2}} e^{-t/2}}{2^{\frac{n-1}{2}} \Gamma(\tfrac{n-1}{2})} \, dt \right)              \\
+     & = \hat{\mathcal{Z}}_n \left( \frac{P_{\chi^2_{n-1}}( t \ge \tfrac{\sigma_0^2}{\sigma^2} )}{(\sigma^2 / \sigma_0^2) / (n-1)} + \frac{P_{\chi^2_{n+1}}( t \ge \tfrac{\sigma_0^2}{\sigma^2} )}{1/(n-1)} \right)                                          \\
+     & \le \hat{\mathcal{Z}}_n (n-1) \left( \tfrac{\sigma_0^2}{\sigma^2} e^{-c_1 \sigma_0^2 / \sigma^2} + e^{-c_2 \sigma_0^2 / \sigma^2}\right)                                                                                                              \\
+     & \le \hat{\mathcal{Z}}_n (n-1) e^{-c_3 \sigma_0^2 / \sigma^2}
+\end{align*}
+where $c_2, c_3$ are positive constants.
+The absolute error for~\eqref{eqn:supp:gauss_norm_deriv_small_sigma} is bounded by
+\begin{align*}
+    \left| \frac{d \log\mathcal{Z}_n}{d \log\sigma} - \frac{d \log\hat{\mathcal{Z}}_n}{d \log\sigma} \right|
+    \le \frac{1}{\mathcal{Z}_n} \left| \frac{d \mathcal{Z}_n}{d \log\sigma} - \frac{d \hat{\mathcal{Z}}_n}{d \log\sigma} \right|
+    + \left| \frac{d \log\hat{\mathcal{Z}}_n}{d \log\sigma} \right| \frac{|\hat{\mathcal{Z}}_n - \mathcal{Z}_n|}{\mathcal{Z}_n}.
+\end{align*}
+Since $\hat{\mathcal{Z}}_n/\mathcal{Z}_n \to 1$ and $\tfrac{d \log\hat{\mathcal{Z}}_n}{d \log\sigma} = \tfrac{1}{n\sigma^2} + n - 1$, this decreases as $\mathcal{O}(e^{-c\sigma_0^2/\sigma^2})$ for some $c>0$ as $\sigma/\sigma_0 \to 0^+$.
+$\blacksquare$
+
+\subsubsection{Moderate Width ($\sigma \approx \sigma_0$)}
+
+In the regime where $\sigma$ is neither small nor large, we approximate $\mathcal{Z}_n$ numerically.
+Since directly evaluating the high-dimensional integral~\eqref{eqn:supp:gauss_pdf_norm} is infeasible, we first rewrite \cref{eqn:supp:gauss_pdf_norm} into a tractable form.
+We use an identity for integrating products of univariate functions on the simplex: let $f : \ProbSimplex{n-1} \to \mathbb{R}$ be of the form $f(\vv{x}) = \prod_{i=1}^{n} f_i(\vv{x}_i)$, where $f_i : \mathbb{R} \to \mathbb{R}$ are univariate.
+Then, it can be shown that~\citep{wolpert_estimating_1995}:
+\begin{align}
+    \int_{\ProbSimplex{n-1}} f(\vv{x}) \, d\vv{x} & = \int_{\ProbSimplex{n-1}} \prod_{i=1}^n f_i (\vv{x}_i) \, d\vv{x} \\
+                                                  & = \left( f_1 \otimes f_2 \otimes \cdots \otimes f_n \right)(1)     \\
+                                                  & = \InvLaplace{ \prod_{i=1}^n \Laplace{ f_i }(s) }(1)
+\end{align}
+where $\otimes$ denotes the convolution $(f \otimes g)(t) = \int_0^t f(\tau) g(t - \tau) \, d\tau$, $\Laplace{\cdot}(s)$ denotes the Laplace transform, and $\InvLaplace{\cdot}(t)$ its inverse.
+We apply this identity to~\eqref{eqn:supp:gauss_pdf_norm} by letting $f_i(t) = g(t) = e^{-t^2 / 2\sigma^2}$.
+The Laplace transform $G(s)$ of $g(t)$ is
+\begin{align}
+    G(s) \coloneqq \Laplace{ e^{-t^2 / 2\sigma^2} }(s) = \sqrt{\frac{\pi \sigma^2}{2}} \erfcx\left(\frac{\sigma s}{\sqrt{2}}\right)
+\end{align}
+where $\erfcx(t) = e^{t^2} \erfc(t)$ is the \textit{scaled complementary error function}.
+It follows that
+\begin{align}\label{eqn:supp:gauss_pdf_norm_laplace}
+    \begin{split}
+        \mathcal{Z}_n & = \InvLaplace{ G(s)^n }(1).
+    \end{split}
+\end{align}
+While the inverse Laplace transform in \eqref{eqn:supp:gauss_pdf_norm_laplace} admits no closed form, there exist robust numerical algorithms to compute $\InvLaplace{\cdot}(t)|_{t=1}$.
+We use the method of de Hoog et al.~\citep{de_hoog_improved_1982} provided by the \texttt{invertlaplace} function from the open-source Python package \texttt{mpmath}~\citep{johansson_mpmath_2021}, a library for arbitrary-precision floating-point arithmetic.
+
+Similarly, $\frac{d \mathcal{Z}_n}{d \log\sigma}$ can be computed by first differentiating~\eqref{eqn:supp:gauss_pdf_norm_laplace} under the integral sign.
+Noting that
+\begin{align}
+    \frac{\partial}{\partial \log\sigma} G(s)
+     & = (1 + \sigma^2 s^2) \sqrt{\frac{\pi \sigma^2}{2}} \erfcx\left(\frac{\sigma s}{\sqrt{2}}\right) - \sigma^2 s \\
+     & = (1 + \sigma^2 s^2) G(s) - \sigma^2 s
+\end{align}
+it follows that
+\begin{align}
+    \frac{d \mathcal{Z}_n}{d \log\sigma}
+     & = \InvLaplace{ \frac{\partial}{\partial \log\sigma} G(s)^n }(1)           \\
+     & = n\mathcal{Z}_n + n \sigma^2 \InvLaplace{ s^2 G(s)^n - s G(s)^{n-1} }(1)
+\end{align}
+and finally
+\begin{align}\label{eqn:supp:gauss_pdf_norm_deriv_laplace}
+    \frac{d \log\mathcal{Z}_n}{d \log\sigma}
+    = n + n \sigma^2 \frac{\InvLaplace{ s^2 G(s)^n - s G(s)^{n-1} }(1)}{\InvLaplace{ G(s)^n }(1)}.
+\end{align}
+While~\eqref{eqn:supp:gauss_pdf_norm_laplace} and~\eqref{eqn:supp:gauss_pdf_norm_deriv_laplace} may in principle be evaluated for any $\sigma$, they remain too expensive to be computed during training, for example as part of a loss function.
+Instead, we fix a relative tolerance $\varepsilon > 0$ and (separately for both $\log\mathcal{Z}_n$ and $\frac{d \log\mathcal{Z}_n}{d \log\sigma}$) split the input domain into three regimes:
+\begin{enumerate}
+    \item $\log\sigma < a$: find $a$ such that~\eqref{eqn:supp:gauss_norm_small_sigma} (or~\eqref{eqn:supp:gauss_norm_deriv_small_sigma}) is $\varepsilon$-accurate;
+    \item $\log\sigma > b$: find $b$ such that~\eqref{eqn:supp:gauss_norm_large_sigma} (or~\eqref{eqn:supp:gauss_norm_deriv_large_sigma}) is $\varepsilon$-accurate;
+    \item $a \le \log\sigma \le b$: find an $\varepsilon$-accurate minimax rational approximation to~\eqref{eqn:supp:gauss_pdf_norm_laplace} (or~\eqref{eqn:supp:gauss_pdf_norm_deriv_laplace}).
+\end{enumerate}
+For the small and large $\sigma$ regimes, the constants $a$ and $b$ are found using numerical root-finding methods: the largest value of $a$ and smallest value of $b$ are found such that the appropriate limiting forms for $\log\mathcal{Z}_n$ (or $\frac{d \log\mathcal{Z}_n}{d \log\sigma}$) agree with~\eqref{eqn:supp:gauss_pdf_norm_laplace} (or~\eqref{eqn:supp:gauss_pdf_norm_deriv_laplace}) with relative error $\varepsilon$.
+For the moderate $\sigma$ regime, we first note from~\eqref{eqn:supp:gauss_pdf_norm} that $\mathcal{Z}_n$ is a strictly increasing positive function of $\sigma$ which asymptotically approaches $1/\Gamma(n)$ from below, and therefore $\log\mathcal{Z}_n < -\log\Gamma(n) \le 0$ and $\frac{d \log\mathcal{Z}_n}{d \log\sigma} = \frac{\sigma}{\mathcal{Z}_n} \frac{d \mathcal{Z}_n}{d \sigma} > 0$.
+Then, we find minimax rational approximations
+\begin{align*}
+    \left| \log\left( -\log\mathcal{Z}_n \right) - \frac{P}{Q} \right| \le \varepsilon, \quad \left| \log\left( \frac{d \log\mathcal{Z}_n}{d \log\sigma} \right) - \frac{R}{S} \right| \le \varepsilon
+\end{align*}
+where $P, Q, R, S : \mathbb{R} \to \mathbb{R}$ are polynomial functions of $\log\sigma$.
+The additional logarithm serves to convert the minimax bound on the \textit{absolute} error to a near-minimax bound on the \textit{relative} error in the sense that, given $\lvert \log f - \frac{P}{Q} \rvert \le \varepsilon$, one has:
+\begin{align*}
+    \left|\frac{f - e^{\frac{P}{Q}}}{f}\right| = \left|1 - e^{\frac{P}{Q} - \log f}\right| \le \left|\log f - \frac{P}{Q}\right| + \mathcal{O}(\varepsilon^2).
+\end{align*}
+Minimax rational approximations are computed using the \texttt{minimax} function from the Matlab (R2022a) open-source package \texttt{chebfun}~\citep{driscoll_chebfun_2014}, a library for numerical computing with functions.
+We use $\varepsilon = 10^{-7}$, $\deg(P) = \deg(Q) = 6$, and $\deg(R) = \deg(S) = 8$.
+
+\section{Optimization on Embedded Riemannian Manifolds}\label{sec:supp:riemannian_optimization}
+
+Consider $f : \mathbb{R}^n \to \mathbb{R}$ to be minimized under the constraint that the iterates $\vv{x}_i \in \mathbb{R}^n$ lie on an embedded manifold $\mathcal{M} \subset \mathbb{R}^n$.
+Then, $f$ can be locally minimized using \textit{Riemannian gradient descent (\gls*{RGD})}:
+\begin{align}\label{eqn:supp:riemannian_grad_desc}
+    \vv{x}_{i+1} = \exp_{\vv{x}_{i}} ( -\eta \grad{f(\vv{x}_{i})} )
+\end{align}
+where $\eta$ is a step size, $\grad f : \mathcal{M} \to T_{\vv{x}} \mathcal{M}$ is the \textit{Riemannian gradient}, and $\exp_{\vv{x}} : T_{\vv{x}} \mathcal{M} \to \mathcal{M}$ is the \textit{exponential map}.
+For $\mathcal{M} \subset \mathbb{R}^n$ with the induced Euclidean metric, one has that
+\begin{align}
+    \grad{f(\vv{x})} = \Proj{\mathcal{M}}{ \vv{x}, \nabla f(\vv{x}) }
+\end{align}
+where $\nabla f(\vv{x}) \in \mathbb{R}^n$, and $\Proj{\mathcal{M}}{ \vv{x}, \nabla f(\vv{x}) }$ is the projection of $\nabla f(\vv{x})$ onto $T_{\vv{x}} \mathcal{M}$.
+The mapping $\exp_{\vv{x}}(\vv{v})$ moves $\vv{x}$ along a geodesic with initial velocity $\vv{v}$ for unit time.
+Relatedly, the \textit{parallel transport} $\operatorname{par}_{\vv{x} \to \vv{y}}(\vv{w})$ slides the tangent vector $\vv{w}$ along a geodesic from $\vv{x}$ to $\vv{y}$ with zero acceleration.
+If $\vv{y} = \exp_{\vv{x}}(\vv{v})$, we equivalently write $\operatorname{par}_{\vv{x}}(\vv{w}; \vv{v})$.
+
+The exponential map is often approximated by the \textit{retraction} of the first-order expansion $\exp_{\vv{x}}(\vv{v}) \approx \vv{x} + \vv{v}$ onto $\mathcal{M}$:
+\begin{align}
+    \exp_{\vv{x}}(\vv{v}) \approx \Retr{\vv{x}}{\vv{v}} = \Proj{\mathcal{M}}{ \vv{x} + \vv{v} }.
+\end{align}
+When using the retraction approximation, \gls*{RGD} is equivalent to \textit{projected gradient descent}~\citep{hauswirth_projected_2016}:
+\begin{align}\label{eqn:supp:general_proj_grad_desc}
+    \vv{x}_{i+1} = \Proj{\mathcal{M}}{ \vv{x}_{i} -\eta \Proj{\mathcal{M}}{ \vv{x}_{i}, \nabla f(\vv{x}_{i}) } }.
+\end{align}
+
+Adaptive methods such as \textsc{Adam}~\citep{kingma_adam:_2014} are not directly usable on manifolds: coordinate systems can only be defined \textit{locally} on a manifold, and therefore coordinatewise state such as momentum loses its meaning.
+The \textsc{RAdam} optimizer~\citep{becigneul_riemannian_2019} addresses this subtlety as follows: 1) tangent vectors are parallel transported to the same coordinate system before being accumulated, 2) momentum normalization uses the coordinate-independent squared norm $\lVert \grad{f(\vv{x})} \rVert^2$ instead of the coordinatewise second moments $(\grad{f(\vv{x})})_i^2$, and 3) $\vv{x} - \eta \vv{\Delta}\vv{x}$ is replaced by $\exp_{\vv{x}}(-\eta \vv{\Delta}\vv{x})$.
+
+\section{Densities on Riemannian Manifolds with Application to the Standard Simplex}\label{sec:supp:riemannian_manifolds}
+
+\subsection{Density Transformations on Manifolds}\label{sec:supp:xform_generic}
+
+We review how to transform probability densities under smooth, injective maps between Riemannian manifolds.
+For an intuitive derivation, see Appendix A in~\citep{rezende_normalizing_2020}.
+
+Let $M$ and $N$ be $D$-dimensional Riemannian manifolds with measures $\mu_M$ and $\mu_N$ induced by their metrics.
+For any measurable function $f\colon N\to\mathbb{R}$ and any diffeomorphism $T\colon M\to N$, the change-of-variables formula is
+\begin{align}\label{eqn:supp:measure_theory_riemannian_manifold}
+    \int_U f(u) \, d\mu_N(u) = \int_X f\left(T(x)\right) \AbsDet{D_x T} \, d\mu_M(x)
+\end{align}
+where $X\subset M$, $U=T(X)\subset N$, and $\AbsDet{D_x T}$ is the Jacobian determinant computed in local coordinates.
+Let $p_x$ and $p_u$ be probability densities on $M$ and $N$ with respect to the Riemannian volume measures $dx$ and $du$, where $u = T(x)$.
+Given $p_x$, by~\eqref{eqn:supp:measure_theory_riemannian_manifold} the transformed density $p_u$ is
+\begin{align}\label{eqn:supp:xform_density_manifold}
+    p_{u}(u) = \frac{p_x(x)}{\AbsDet{D_x T}}.
+\end{align}
+
+Now suppose $M \subset \mathbb{R}^{m}$ and $N \subset \mathbb{R}^{n}$ are embedded with metrics induced by the ambient Euclidean inner product.
+If $E \in \mathbb{R}^{m\times D}$ is an orthonormal basis for the tangent space $T_x M$ and $J=\frac{\partial u}{\partial x}\in\mathbb{R}^{n\times m}$ is the Jacobian of $T$ at $x$, then $\AbsDet{D_x T} = \sqrt{\Det{(JE)^T JE}}$ and the density update is
+\begin{align}\label{eqn:supp:xform_density_embedded}
+    p_{u}(u) = \frac{p_x(x)}{\sqrt{\Det{E^T J^T J E}}}.
+\end{align}
+
+\subsection{The Standard Simplex Manifold \texorpdfstring{$\ProbSimplex{n-1}$}{DeltaNMinusOne}}\label{sec:supp:simplex_manifold}
+
+Consider the standard $(n-1)$-simplex
+\begin{align}
+    \Delta^{n-1} = \Bigl\{ x \in \mathbb{R}^n : x_i > 0 \text{ and } \sum_{i=1}^{n} x_i = 1 \Bigr\}.
+\end{align}
+$\Delta^{n-1}$ is an $(n-1)$-dimensional embedded submanifold of $\mathbb{R}^n$ endowed with the metric induced by the Euclidean inner product.
+Its measure induced by the metric is denoted by $dx$.
+
+\subsubsection{Jacobian Determinant of the \gls*{ILR} Transform}\label{sec:supp:ilr_jacobian_det}
+
+We now derive the Jacobian determinant for the isometric log-ratio (\gls*{ILR}) transformation.
+For the \gls*{ILR} transform $\ilr : \Delta^{n-1} \to \mathbb{R}^{n-1}$ given by
+\begin{align}
+    \ILR{x}=\Psi^T\log(x)
+\end{align}
+the tangent space of the domain $T_x \Delta^{n-1}$ is spanned by the columns of $\Psi$.
+We thus take $E=\Psi$ to be a fixed orthonormal basis for $T_x\Delta^{n-1}$.
+The ambient Jacobian is
+\begin{align}
+    J = \frac{\partial \ILR{x}}{\partial x} = \Psi^T \Diag{\frac{1}{x_1},\ldots,\frac{1}{x_{n}}},
+\end{align}
+and so the effective Jacobian on $T_x\Delta^{n-1}$ is $JE = J\Psi$.
+The density update factor is then
+\begin{align}
+    \sqrt{\Det{E^T J^T J E}} = \AbsDet{J\Psi} = \frac{1}{n\prod_{i=1}^n x_i}.
+\end{align}
+This can be derived in several steps.
+First, we note that the density update is independent of the choice of basis.
+If $\Psi_1, \Psi_2 \in \mathbb{R}^{n \times (n-1)}$ are orthonormal bases for the plane $\langle \One, \cdot \rangle = 0$, then
+$\One^T \Psi_1 = \One^T \Psi_2 = \Zero$, $\Psi_1 \Psi_1^T = \Psi_2 \Psi_2^T = \Id_{n} - \frac{1}{n} \One \One^T$, and $\Psi_2 = \Psi_1 \vv{Q}$ with $\vv{Q} = \Psi_1^T \Psi_2$ orthogonal:
+\begin{align*}
+    \Psi_1 \vv{Q}   & = (\Psi_1 \Psi_1^T) \Psi_2 = (\Id_{n} - \frac{1}{n} \One \One^T) \Psi_2 = \Psi_2 \\
+    \vv{Q}^T \vv{Q} & = \Psi_2^T (\Psi_1 \Psi_1^T \Psi_2) = \Psi_2^T \Psi_2 = \Id_{n-1}.
+\end{align*}
+Therefore we have
+\begin{align*}
+    \AbsDet{J\Psi_2} = \AbsDet{\Psi_2^T \Diag{\frac{1}{x}} \Psi_2} = \AbsDet{\vv{Q}^T J\Psi_1 \vv{Q}} = \AbsDet{J\Psi_1}.
+\end{align*}
+Now, let $B \in \mathbb{R}^{n \times (n-1)}$ be the (non-orthogonal) basis with $j^\text{th}$ column $\vv{e}_j - \vv{e}_n$, and let $\Psi = B (B^T B)^{-1/2}$ be the orthonormalization of $B$, noting that $B^T B$ is positive definite such that the matrix inverse square root is unique, and
+\begin{align*}
+    \Psi^T \One    & = (B^T B)^{-1/2} B^T \One = \Zero,                                                                    \\
+    \Psi^T \Psi    & = (B^T B)^{-1/2} B^T B (B^T B)^{-1/2} = \Id_{n-1}                                                     \\
+    \AbsDet{B^T B} & = \AbsDet{\begin{pmatrix} \Id_{n-1} \\ -\One^T \end{pmatrix}^T \begin{pmatrix} \Id_{n-1} \\ -\One^T \end{pmatrix}} = \AbsDet{\Id_{n-1} + \One \One^T} \\
+                   & = (1 + \One^T \One) = n.
+\end{align*}
+Then,
+\begin{align*}
+    \AbsDet{J\Psi} & = \AbsDet{\Psi^T \Diag{\frac{1}{x}} \Psi}            \\
+                   & = \AbsDet{B^T \Diag{\frac{1}{x}} B} / \AbsDet{B^T B} \\
+                   & = \AbsDet{B^T \Diag{\frac{1}{x}} B} / n
+\end{align*}
+and we have
+\begin{align*}
+    \AbsDet{B^T \Diag{\frac{1}{x}} B} & = \AbsDet{\begin{pmatrix} \Id_{n-1} \\ -\One^T \end{pmatrix}^T \Diag{\frac{1}{x}} \begin{pmatrix} \Id_{n-1} \\ -\One^T \end{pmatrix}}                        \\
+                                      & = \AbsDet{\begin{pmatrix} \Id_{n-1} \\ -\One^T \end{pmatrix}^T \begin{pmatrix} \Diag{1 / \tilde{x}} \\ -(1 / x_{n}) \One^T \end{pmatrix}}                                           \\
+                                      & = \AbsDet{\Diag{\frac{1}{\tilde{x}}} + \frac{1}{x_{n}} \One \One^T}                                          \\
+                                      & = \bigg( \prod_i \frac{1}{\tilde{x}_i} \bigg) \bigg( 1 + \frac{1}{x_{n}} \One^T \Diag{\tilde{x}} \One \bigg) \\
+                                      & = \bigg( \prod_i \frac{1}{\tilde{x}_i} \bigg) \bigg( 1 + \frac{1 - x_{n}}{x_{n}} \bigg)                      \\
+                                      & = \prod_i \frac{1}{x_i}                                                                                      \\
+    \Rightarrow \AbsDet{J\Psi}        & = \frac{1}{n\prod_i x_i} \tag*{$\blacksquare$}
+\end{align*}
+where we denoted $\tilde{x}=(x_1,\ldots,x_{n-1})$, and used the matrix determinant lemma $\Det{A + uv^T} = \Det{A} (1 + v^T A^{-1} u)$.
+
+Let $p_x(x)$ denote the density on $\Delta^{n-1}$ (with respect to $dx$) and $p_u(u)$ denote the density in \gls*{ILR} coordinates.
+Then, by the change-of-variables formula,
+\begin{align}
+    \boxed{p_u(u) = p_x(x) \bigg( n \prod_{i=1}^{n} x_i \bigg).}
+\end{align}
+
+\subsubsection{Jacobian Determinant of the Inverse \gls*{ILR} Transform}
+
+Alternatively, consider the inverse map $\invilr \colon \mathbb{R}^{n-1}\to \Delta^{n-1}$.
+Since the domain is $\mathbb{R}^{n-1}$, we choose the standard basis $E = \Id_{n-1}$.
+Letting $z = \Psi u$, the inverse \gls*{ILR} transform is
+\begin{align}
+    \InvILR{u} = \operatorname{softmax}(z) = \frac{\exp(z)}{\sum_{j=1}^{n}\exp(z_j)}.
+\end{align}
+The Jacobian of the softmax function is
+\begin{align}
+    \frac{\partial x}{\partial z} = \Diag{x} - xx^T
+\end{align}
+and thus the Jacobian of $\invilr$ is
+\begin{align}
+    J = \frac{\partial x}{\partial z} \frac{\partial z}{\partial u} = \left(\Diag{x}-xx^T\right)\Psi.
+\end{align}
+The Jacobian determinant
+\begin{align}
+    \sqrt{\Det{J^T J}} = n\prod_{i=1}^{n} x_i
+\end{align}
+can be derived using a similar method as for the forward transform.
+First, denote $X = \Diag{x} - xx^T$.
+Since $\One^T X = \Zero^T$, the projection operator $\Psi \Psi^T$ does not change $X$:
+\begin{align*}
+    \Psi \Psi^T X & = \left( \Id_{n} - \frac{1}{n} \One \One^T \right) X = X.
+\end{align*}
+This lets us factor the Jacobian determinant:
+\begin{align*}
+    \Det{J^T J} & = \Det{\Psi^T X^T X \Psi}               \\
+                & = \Det{\Psi^T X^T (\Psi \Psi^T X) \Psi} \\
+                & = \AbsDet{\Psi^T X \Psi}^2
+\end{align*}
+By the same argument as in \cref{sec:supp:ilr_jacobian_det}, the determinant $\AbsDet{\Psi^T X \Psi}$ is independent of the choice of basis;
+we choose $\Psi = B(B^T B)^{-1/2}$ as before, where the $j^\text{th}$ column of $B \in \mathbb{R}^{n \times (n-1)}$ is $\vv{e}_j - \vv{e}_n$.
+Then,
+\begin{align*}
+    \AbsDet{\Psi^T X \Psi} & = \AbsDet{B^T X B} / \AbsDet{B^T B}                                                               \\
+                           & = \AbsDet{B^T X B} / n                                                                            \\
+    \AbsDet{B^T X B}       & = \AbsDet{\begin{pmatrix} \Id_{n-1} \\ -\One^T \end{pmatrix}^T \left( \Diag{x} - xx^T \right) \begin{pmatrix} \Id_{n-1} \\ -\One^T \end{pmatrix}} \\
+                           & = \AbsDet{\Diag{\tilde{x}} + x_n \One \One^T - \tilde{y} \tilde{y}^T}
+\end{align*}
+where $\tilde{y} = \tilde{x} - x_{n} \One$.
+This can be computed straightforwardly, albeit tediously, with two applications of the matrix determinant lemma $\Det{A + uv^T} = \Det{A} (1 + v^T A^{-1} u)$ and one application of the Sherman--Morrison formula $(A + uv^T)^{-1} = A^{-1} - \frac{A^{-1} u v^T A^{-1}}{1 + v^T A^{-1} u}$.
+Let $A_1 = \Diag{\tilde{x}}$, $A_2 = A_1 + x_n \One \One^T$, and $A_3 = A_2 - \tilde{y} \tilde{y}^T = B^T X B$.
+Then,
+\begin{align*}
+    \Det{A_3} & = \Det{A_2} (1 - \tilde{y}^T A_2^{-1} \tilde{y})                                       \\
+              & = \Det{A_1} (1 + x_n \One^T A_1^{-1} \One) (1 - \tilde{y}^T A_2^{-1} \tilde{y})        \\
+              & = \Det{A_1} \bigg( (1 + x_n \One^T A_1^{-1} \One) (1 - \tilde{y}^T A_1^{-1} \tilde{y}) \\
+              & \qquad + x_n (\tilde{y}^T A_1^{-1} \One \One^T A_1^{-1} \tilde{y}) \bigg)
+\end{align*}
+Let $c = \sum_i \frac{1}{\tilde{x}_i}$ and recall that $\sum_i \tilde{x}_i = 1 - x_n$.
+Then, we have
+\begin{align*}
+    \One^T A_1^{-1} \One               & = \sum_i \frac{1}{\tilde{x}_i} = c                                          \\
+    \One^T A_1^{-1} \tilde{y}          & = \sum_i \left( 1 - \frac{x_n}{\tilde{x}_i} \right) = n - 1 - x_n c         \\
+    1 - \tilde{y}^T A_1^{-1} \tilde{y} & = 1 - \sum_i \frac{(\tilde{x}_i - x_n)^2}{\tilde{x}_i}                      \\
+                                       & = 1 - \sum_i \left( \tilde{x}_i - 2 x_n + \frac{x_n^2}{\tilde{x}_i} \right) \\
+                                       & = 1 - \left( (1 - x_n) - 2 (n - 1) x_n + x_n^2 c \right)                    \\
+                                       & = x_n (2n - 1 - x_n c).
+\end{align*}
+Inserting $\Det{A_1} = \prod_i \tilde{x}_i$ and $A_3 = B^T X B$ then gives
+\begin{align*}
+    \frac{\AbsDet{B^T X B}}{\prod_i x_i} & = | (1 + x_n c) (2n - 1 - x_n c)                       \\
+                                         & \qquad + (n - 1 - x_n c)^2 |                           \\
+                                         & = | 2n - 1 + (n-1)^2 + \left( -1 + 1 \right) x_n^2 c^2 \\
+                                         & \qquad + \left( (2n - 1) - 1 - 2(n-1) \right) x_n c |  \\
+                                         & = n^2.
+\end{align*}
+Finally, the Jacobian determinant is
+\begin{align*}
+    \sqrt{\Det{J^T J}} & = \AbsDet{\Psi^T X \Psi}               \\
+                       & = \AbsDet{B^T X B} / n                 \\
+                       & = n \prod_i x_i. \tag*{$\blacksquare$}
+\end{align*}
+Thus, by the change-of-variables formula, we recover the same density update:
+\begin{align}
+    \boxed{p_x(x) = \frac{p_u(u)}{n\prod_{i=1}^{n} x_i}.}
+\end{align}
+
+\subsubsection{Changing to the Intrinsic Measure}\label{sec:supp:simplex_intrinsic_measure}
+
+Thus far, the density $p_x(x)$ is given with respect to the measure $dx$ induced on the simplex by the Euclidean metric on $\mathbb{R}^n$.
+This is inconvenient to work with;
+for example, to compute integrals over $\Delta^{n-1}$, it is more natural to work with the intrinsic (or coordinate) measure.
+We choose the coordinate chart
+\begin{align}
+    \varphi(x) = (x_1, x_2, \ldots, x_{n-1})
+\end{align}
+for $\Delta^{n-1}$, with inverse
+\begin{align}
+    \varphi^{-1}(\tilde{x}) = \Bigl(\tilde{x}_1, \tilde{x}_2, \ldots, \tilde{x}_{n-1}, 1-\sum_{i=1}^{n-1}\tilde{x}_i\Bigr).
+\end{align}
+A straightforward computation relates the induced measure $dx$ on $\Delta^{n-1}$ with the Lebesgue measure $d\tilde{x}$ on $\mathbb{R}^{n-1}$:
+\begin{align}
+    dx               & = \sqrt{\Det{ J_{\varphi^{-1}}^T J_{\varphi^{-1}} }} d\tilde{x} = \sqrt{n} d\tilde{x}, \\
+    \text{where} \;\;
+    J_{\varphi^{-1}} & = \begin{pmatrix} \Id_{n-1} \\ -\One^T \end{pmatrix},
+    \;\;
+    J_{\varphi^{-1}}^T J_{\varphi^{-1}} = \Id_{n-1} + \One \One^T. \nonumber
+\end{align}
+Changing variables to intrinsic coordinates, the density $p_{\tilde{x}}(\tilde{x})$ with respect to $d\tilde{x}$ satisfies $p_x(x) dx = p_{\tilde{x}}(\tilde{x}) d\tilde{x}$, and so
+\begin{align}
+    \boxed{p_{\tilde{x}}(\tilde{x}) = \sqrt{n} p_x(x) = \frac{p_u(u)}{\sqrt{n}\prod_{i=1}^{n}x_i}.}
+\end{align}
+
+This is analogous to converting a density $p_1(x,y,z)$ with respect to the area measure $d\Omega$ on the sphere $S^2 \subset \mathbb{R}^3$ into a density $p_2(\theta,\phi)$ with respect to the intrinsic measure $d\theta d\phi$ using the spherical coordinate chart $\varphi^{-1}(\theta,\phi) = (\sin\theta\cos\phi, \sin\theta\sin\phi, \cos\theta)$.
+These measures satisfy $d\Omega = \sin\theta d\theta d\phi$, resulting in $p_2(\theta,\phi) = p_1(\varphi^{-1}(\theta,\phi)) \sin\theta$.
+
+\subsection{The Softmax Manifold \texorpdfstring{$\ProbSimplex{n-1} \times \mathbb{R}$}{DeltaNMinusOneTimesR}}\label{sec:supp:softmax_manifold}
+
+In this section, we consider the manifold $\ProbSimplex{n-1} \times \mathbb{R} \subset \mathbb{R}^{n+1}$, the product manifold of the standard $(n-1)$-simplex and the real line.
+This manifold is endowed with the product metric, and its induced measure is denoted by $dx$.
+
+\subsubsection{Forward Transformation}\label{sec:supp:xform_softmax}
+
+Consider the injective extension $\varphi : \mathbb{R}^{n} \to \mathbb{R}^{n+1}$ of the \textit{softmax} function
+\begin{align}\label{eqn:supp:softmax}
+    \vv{x} = \varphi(\vv{u}) =
+    \begin{pmatrix}
+        \vv{\bar{x}} \\
+        \log s
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        e^{\beta \vv{u}} / \langle \One, e^{\beta \vv{u}} \rangle \\
+        -\log \langle \One, e^{\beta \vv{u}} \rangle
+    \end{pmatrix}
+\end{align}
+where $\beta > 0$, $\vv{u} \in \mathbb{R}^{n}$ are the \textit{logits}, $\log s \in \mathbb{R}$ where $s^{-1} = \langle \One, e^{\beta \vv{u}} \rangle$ is the normalization constant, and $\vv{\bar{x}} \in \ProbSimplex{n-1}$ is a probability vector embedded in $\mathbb{R}^{n}$.
+
+We now compute the density update \eqref{eqn:supp:xform_density_embedded} for the transformation \eqref{eqn:supp:softmax}.
+Following the notation in \cref{sec:supp:xform_generic}, we let $\mathcal{M} = \mathbb{R}^{n}$ and $\mathcal{N} = \ProbSimplex{n-1} \times \mathbb{R} \subset \mathbb{R}^{n+1}$, and we choose $\vv{E} = \Id \in \mathbb{R}^{n \times n}$ to be the canonical basis for the tangent space $T_{\vv{u}} \mathbb{R}^{n} \cong \mathbb{R}^{n}$.
+What remains is to compute the differential volume correction $\sqrt{\Det{ \vv{J}^T \vv{J} }}$ for the transformation $\varphi$.
+We have that
+\begin{align}
+    \frac{\partial \vv{\bar{x}}}{\partial \vv{u}} & = \beta \Diag{\vv{\bar{x}}} - \beta \vv{\bar{x}} \vv{\bar{x}}^T \\
+    \frac{\partial \log s}{\partial \vv{u}}       & = -\beta \vv{\bar{x}}^T
+\end{align}
+where $\Diag{\vv{\bar{x}}}$ is the diagonal matrix with $\vv{\bar{x}}$ on the diagonal.
+It follows that
+\begin{align*}
+    \vv{J}^T \vv{J} & =
+    \left( \frac{\partial \vv{\bar{x}}}{\partial \vv{u}} \right)^T \frac{\partial \vv{\bar{x}}}{\partial \vv{u}} +
+    \left( \frac{\partial \log s}{\partial \vv{u}} \right)^T \frac{\partial \log s}{\partial \vv{u}}                               \\
+                    & = \beta^2 \left( (\Diag{\vv{\bar{x}}} - \vv{\bar{x}} \vv{\bar{x}}^T)^2 + \vv{\bar{x}} \vv{\bar{x}}^T \right) \\
+                    & = \beta^2 \Diag{\vv{\bar{x}}} \left( \vv{X} \vv{X}^T + \One \One^T \right) \Diag{\vv{\bar{x}}}
+\end{align*}
+where $\vv{X} = \Id - \One \vv{\bar{x}}^T$.
+Since $\Det{ \Diag{\vv{\bar{x}}} } = \prod_i \vv{\bar{x}}_i$, it remains only to compute the determinant of the matrix $\vv{X} \vv{X}^T + \One \One^T$.
+This can be accomplished using the identities
+\begin{enumerate}
+    \item $\Det{ \vv{A} + \vv{v} \vv{w}^T } = \Det{ \vv{A} } + \vv{w}^T \Adj{\vv{A}} \vv{v}$, the matrix determinant lemma, and
+    \item $\Adj{ \Id + \vv{v} \vv{w}^T } = -\vv{v} \vv{w}^T$, a special case of the Sherman--Morrison formula when $\vv{w}^T \vv{v} = -1$,
+\end{enumerate}
+where $\Adj{\vv{A}}$ denotes the \textit{adjugate matrix} of \vv{A}.
+In our case, $\Det{ \vv{X} } = 1 - \One^T \vv{\bar{x}} = 0$ and $\Adj{\vv{X}} = \Adj{\Id - \One \vv{\bar{x}}^T} = \One \vv{\bar{x}}^T$, and therefore we have that
+\begin{align*}
+    \Det{ \vv{X} \vv{X}^T + \One \One^T }
+     & = \Det{ \vv{X} \vv{X}^T } + \One^T \Adj{ \vv{X} \vv{X}^T } \One \\
+     & = 0 + \One^T (\One \vv{\bar{x}}^T)^T (\One \vv{\bar{x}}^T) \One \\
+     & = (\One^T \One) ( \vv{\bar{x}}^T \One )^2                       \\
+     & = n.
+\end{align*}
+The volume correction term is therefore given by
+\begin{align}\label{eqn:supp:volume_corr_softmax}
+    \sqrt{\Det{ \vv{J}^T \vv{J} }} = \sqrt{n} \beta^{n} \prod_{i=1}^{n} \vv{\bar{x}}_i.
+\end{align}
+and the resulting density update is
+\begin{align}\label{eqn:supp:xform_density_softmax}
+    \boxed{p(\vv{x}) = \frac{p(\vv{u})}{\sqrt{n} \beta^n \prod_{i=1}^{n} \vv{\bar{x}}_i}.}
+\end{align}
+
+\subsubsection{Inverse Transformation}\label{sec:supp:xform_inverse_softmax}
+
+Now, we derive the density transformation for the inverse softmax transformation:
+\begin{align}\label{eqn:supp:inverse_softmax}
+    \vv{u} = \varphi^{-1}(\vv{x}) = \frac{1}{\beta} (\log \vv{\bar{x}} - \log s)
+\end{align}
+where $\varphi : \mathbb{R}^{n} \to \mathbb{R}^{n+1}$ is the injective extension of the softmax operation introduced in \cref{eqn:supp:softmax} in \cref{sec:supp:xform_softmax}.
+As before, $\beta > 0$, $\vv{u} \in \mathbb{R}^{n}$ are the logits, $\vv{\bar{x}} \in \ProbSimplex{n-1}$ is a probability vector embedded in $\mathbb{R}^{n}$, and $s^{-1}$ is the normalization constant;
+subtraction by $\log s$ is performed elementwise.
+
+Note that to compute the density update for \eqref{eqn:supp:inverse_softmax}, one could simply rearrange \eqref{eqn:supp:xform_density_softmax} to solve for $\log p(\vv{u})$ in terms of $\log p(\vv{x})$.
+However, computing the inverse density update directly provides both an illustration of the method on a nontrivial manifold and a means to verify the forward result.
+
+Following the notation in \cref{sec:supp:xform_generic}, we let $\mathcal{M} = \ProbSimplex{n-1} \times \mathbb{R} \subset \mathbb{R}^{n+1}$ and $\mathcal{N} = \mathbb{R}^{n}$.
+Since the tangent space of a product of manifolds is the product of the individual tangent spaces, we define the block orthonormal basis $\vv{E} \in \mathbb{R}^{(n+1) \times n}$ as
+\begin{align}
+    \vv{E} =
+    \begin{bmatrix}
+        \vv{\Psi} & \Zero \\
+        \Zero^T   & 1
+    \end{bmatrix}
+\end{align}
+where $\vv{\Psi} \in \mathbb{R}^{n \times (n-1)}$ is an orthonormal basis for the tangent space $T_{\vv{\bar{x}}} \ProbSimplex{n-1}$.
+The basis $\vv{\Psi}$ is fixed, and satisfies both:
+\begin{enumerate}
+    \item $\vv{\Psi}^T \vv{\Psi} = \Id$: the columns of \vv{\Psi} are orthonormal, and
+    \item $\One^T \vv{\Psi} = \Zero^T$: the columns of \vv{\Psi} are in $T_{\vv{\bar{x}}} \ProbSimplex{n-1}$.
+\end{enumerate}
+Note that these two properties imply that $[ \vv{\Psi} \, \hat{\One} ]$ is an orthonormal basis for $\mathbb{R}^{n}$, where $\hat{\One}$ is the unit vector with all entries $\frac{1}{\sqrt{n}}$, and it follows that $\Id = [ \vv{\Psi} \, \hat{\One} ] [ \vv{\Psi} \, \hat{\One} ]^T = \vv{\Psi} \vv{\Psi}^T + \frac{1}{n} \One \One^T$.
+
+The Jacobian $\vv{J} \in \mathbb{R}^{n \times (n+1)}$ is given by
+\begin{align}
+    \frac{\partial \vv{u}}{\partial \vv{\bar{x}}} & = \frac{1}{\beta} \Diag{ \tfrac{1}{\vv{\bar{x}}} }, \quad \frac{\partial \vv{u}}{\partial \log s} = -\frac{1}{\beta} \One \\
+    \Rightarrow
+    \vv{J}                                        & = \frac{1}{\beta}
+    \begin{bmatrix}
+        \Diag{ \tfrac{1}{\vv{\bar{x}}} } & -\One
+    \end{bmatrix}
+\end{align}
+where the reciprocal $\frac{1}{\vv{\bar{x}}}$ is computed elementwise.
+Using $\Det{ (\vv{J} \vv{E})^T \vv{J} \vv{E} } = \Det{ \vv{J} \vv{E} (\vv{J} \vv{E})^T}$, we compute the matrix products in a convenient order:
+\begin{align}
+    \begin{split}
+        \vv{E} \vv{E}^T                             & = \begin{bmatrix}
+            \vv{\Psi} \vv{\Psi}^T & \Zero \\
+            \Zero^T               & 1
+        \end{bmatrix}                                                                                                                \\
+        \Rightarrow \vv{E} (\vv{J} \vv{E})^T        & = \frac{1}{\beta} \begin{pmatrix}
+            \vv{\Psi} \vv{\Psi}^T \Diag{ \tfrac{1}{\vv{\bar{x}}} } \\
+            -\One^T
+        \end{pmatrix}                                                                       \\
+        \Rightarrow \vv{J} \vv{E} (\vv{J} \vv{E})^T & = \frac{1}{\beta^2} ( \Diag{ \tfrac{1}{\vv{\bar{x}}} } \vv{\Psi} \vv{\Psi}^T \Diag{ \tfrac{1}{\vv{\bar{x}}} } + \One \One^T )                  \\
+        & = \frac{1}{\beta^2} \Diag{ \tfrac{1}{\vv{\bar{x}}} } ( \vv{\Psi} \vv{\Psi}^T + \vv{\bar{x}} \vv{\bar{x}}^T ) \Diag{ \tfrac{1}{\vv{\bar{x}}} }.
+    \end{split}
+\end{align}
+The determinant of $\vv{\Psi} \vv{\Psi}^T + \vv{\bar{x}} \vv{\bar{x}}^T$ is computed using the matrix determinant lemma and the Sherman--Morrison formula.
+First, since $\vv{\Psi}$ is not full rank we have $\Det{ \vv{\Psi} \vv{\Psi}^T } = 0$.
+Then, using $\vv{\Psi} \vv{\Psi}^T = \Id - \frac{1}{n} \One \One^T$, by Sherman--Morrison we have that $\Adj{ \vv{\Psi} \vv{\Psi}^T } = \Adj{ \Id - \frac{1}{n} \One \One^T } = \frac{1}{n} \One \One^T$.
+The matrix determinant lemma finally gives
+\begin{align}
+    \begin{split}
+        \Det{ \vv{\Psi} \vv{\Psi}^T + \vv{\bar{x}} \vv{\bar{x}}^T }
+        & = \Det{ \vv{\Psi} \vv{\Psi}^T } + \vv{\bar{x}}^T \Adj{ \vv{\Psi} \vv{\Psi}^T } \vv{\bar{x}} \\
+        & = 0 + \vv{\bar{x}}^T ( \tfrac{1}{n} \One \One^T ) \vv{\bar{x}}                              \\
+        & = \tfrac{1}{n} ( \vv{\bar{x}}^T \One )^2                                                    \\
+        & = \tfrac{1}{n}.
+    \end{split}
+\end{align}
+Mirroring \eqref{eqn:supp:volume_corr_softmax} and \eqref{eqn:supp:xform_density_softmax},
+the resulting volume correction is
+\begin{align}\label{eqn:supp:volume_corr_inverse_softmax}
+    \sqrt{\Det{ (\vv{J} \vv{E})^T \vv{J} \vv{E} }} = \frac{1}{\sqrt{n} \beta^{n}} \prod_{i=1}^{n} \frac{1}{\vv{\bar{x}}_i}
+\end{align}
+and the corresponding density update is
+\begin{align}\label{eqn:supp:xform_density_inverse_softmax}
+    \boxed{\Rightarrow p(\vv{u}) = p(\vv{x}) \left(\sqrt{n} \beta^{n} \prod_{i=1}^{n} \vv{\bar{x}}_i\right)}
+\end{align}
+as expected from the forward transformation $\blacksquare$.
+
+\subsubsection{Changing to the Intrinsic Measure on $\Delta^{n-1}\times\mathbb{R}$}\label{sec:supp:product_intrinsic_measure}
+
+Thus far, the density $p_{x}$ is given with respect to the measure $dx$ induced on the product manifold $\Delta^{n-1}\times\mathbb{R}$ by the Euclidean metric on $\mathbb{R}^{n+1}$.
+As discussed in \cref{sec:supp:simplex_intrinsic_measure}, in practice it is more convenient to use the intrinsic (or coordinate) measure.
+A natural coordinate chart for $\Delta^{n-1}\times\mathbb{R}$ is given by
+\begin{align}
+    \varphi(x) = (\bar{x}_1, \bar{x}_2, \ldots, \bar{x}_{n-1}, \log s),
+\end{align}
+with inverse
+\begin{align}
+    \varphi^{-1}(\tilde{x}) = \Bigl(\tilde{x}_1, \tilde{x}_2, \ldots, \tilde{x}_{n-1}, 1-\sum_{i=1}^{n-1}\tilde{x}_i, \log s\Bigr)
+\end{align}
+where $x = (\bar{x}, \log s)$.
+The induced measure $dx$ and the Lebesgue measure $d\tilde{x}$ on $\mathbb{R}^{n-1}\times\mathbb{R} \cong \mathbb{R}^n$ are related by
+\begin{align}
+    dx                                  & = \sqrt{\Det{J_{\varphi^{-1}}^T J_{\varphi^{-1}}}} d\tilde{x} = \sqrt{n} d\tilde{x} \\
+    \text{where} \quad J_{\varphi^{-1}} & = \begin{bmatrix} \Id_{n-1} & \Zero \\ -\One^T & \Zero \\ \Zero^T & 1\end{bmatrix}, \nonumber                                             \\
+    J_{\varphi^{-1}}^T J_{\varphi^{-1}} & = \begin{bmatrix} \Id_{n-1} + \One \One^T & \Zero \\ \Zero & 1\end{bmatrix}. \nonumber
+\end{align}
+Changing variables to intrinsic coordinates gives the density $p_{\tilde{x}}$
+\begin{align}\label{eqn:supp:xform_density_softmax_intrinsic}
+    \boxed{p_{\tilde{x}}(\tilde{x}) = \sqrt{n} p(\vv{x}) = \frac{p(\vv{u})}{\beta^n \prod_{i=1}^{n} \vv{\bar{x}}_i}.}
+\end{align}
